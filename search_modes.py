@@ -345,14 +345,19 @@ def multi_video_search_one_person():
 
     for idx, video_path in enumerate(VIDEO_PATHS, 1):
 
-        video_namespace = f"video_{os.path.splitext(os.path.basename(video_path))[0]}"
+        # If it has a file extension (.mp4 etc.) derive namespace from filename;
+        # otherwise the value IS the namespace (sent directly from the server UI)
+        if os.path.splitext(video_path)[1]:
+            video_namespace = f"video_{os.path.splitext(os.path.basename(video_path))[0]}"
+        else:
+            video_namespace = video_path
 
         try:
             stats = index.describe_index_stats()
             namespace_count = stats.get('namespaces', {}).get(video_namespace, {}).get('vector_count', 0)
 
             if namespace_count == 0:
-                print(f"   ⚠️  Video not stored - skipping")
+                print(f"   ⚠️  Namespace '{video_namespace}' not stored - skipping")
                 all_results[video_path] = {"status": "not_stored"}
                 continue
 
@@ -361,9 +366,13 @@ def multi_video_search_one_person():
             all_results[video_path] = {"status": "error", "message": str(e)}
             continue
 
-        cap = cv2.VideoCapture(video_path)
-        fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
-        cap.release()
+        # Only open actual video files for fps; fall back to 25.0 for namespace-only entries
+        if os.path.exists(video_path):
+            cap = cv2.VideoCapture(video_path)
+            fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+            cap.release()
+        else:
+            fps = 25.0
 
         results = index.query(
             vector=ref_emb.tolist(),
@@ -473,14 +482,19 @@ def ultimate_search():
         person_results = {}
 
         for video_idx, video_path in enumerate(VIDEO_PATHS, 1):
-            video_namespace = f"video_{os.path.splitext(os.path.basename(video_path))[0]}"
+            # If it has a file extension (.mp4 etc.) derive namespace from filename;
+            # otherwise the value IS the namespace (sent directly from the server UI)
+            if os.path.splitext(video_path)[1]:
+                video_namespace = f"video_{os.path.splitext(os.path.basename(video_path))[0]}"
+            else:
+                video_namespace = video_path
 
             try:
                 stats = index.describe_index_stats()
                 namespace_count = stats.get('namespaces', {}).get(video_namespace, {}).get('vector_count', 0)
 
                 if namespace_count == 0:
-                    print(f"     ⚠️  Not stored - skipping")
+                    print(f"     ⚠️  Namespace '{video_namespace}' not stored - skipping")
                     person_results[video_path] = {"status": "not_stored"}
                     continue
             except Exception as e:
@@ -488,9 +502,13 @@ def ultimate_search():
                 person_results[video_path] = {"status": "error", "message": str(e)}
                 continue
 
-            cap = cv2.VideoCapture(video_path)
-            fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
-            cap.release()
+            # Only open actual video files for fps; fall back to 25.0 for namespace-only entries
+            if os.path.exists(video_path):
+                cap = cv2.VideoCapture(video_path)
+                fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+                cap.release()
+            else:
+                fps = 25.0
 
             results = index.query(
                 vector=ref_emb.tolist(),
