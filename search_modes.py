@@ -127,6 +127,9 @@ def search_for_person_in_stored_faces():
     cap = cv2.VideoCapture(VIDEO_PATH)
     fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
     cap.release()
+    if fps == 0:
+        print("⚠️  Warning: Could not read FPS from video. Defaulting to 25 FPS.")
+        fps = 25.0
 
     all_matches = []
     clusterer = TemporalClusterer(frame_threshold=TEMPORAL_CLUSTER_THRESHOLD)
@@ -366,13 +369,9 @@ def multi_video_search_one_person():
             all_results[video_path] = {"status": "error", "message": str(e)}
             continue
 
-        # Only open actual video files for fps; fall back to 25.0 for namespace-only entries
-        if os.path.exists(video_path):
-            cap = cv2.VideoCapture(video_path)
-            fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
-            cap.release()
-        else:
-            fps = 25.0
+        cap = cv2.VideoCapture(video_path)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        cap.release()
 
         results = index.query(
             vector=ref_emb.tolist(),
@@ -502,13 +501,9 @@ def ultimate_search():
                 person_results[video_path] = {"status": "error", "message": str(e)}
                 continue
 
-            # Only open actual video files for fps; fall back to 25.0 for namespace-only entries
-            if os.path.exists(video_path):
-                cap = cv2.VideoCapture(video_path)
-                fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
-                cap.release()
-            else:
-                fps = 25.0
+            cap = cv2.VideoCapture(video_path)
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            cap.release()
 
             results = index.query(
                 vector=ref_emb.tolist(),

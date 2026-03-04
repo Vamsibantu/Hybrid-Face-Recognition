@@ -6,7 +6,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
-from config import MODE, DEVICE, VIDEO_NAMESPACE, VIDEO_PATH, IMAGE_PATH
+from config import MODE, VIDEO_NAMESPACE, VIDEO_PATH, IMAGE_PATH
 
 print(f"   - Mode: {MODE.upper()}")
 
@@ -19,7 +19,6 @@ if MODE in ('search', 'batch_search', 'ultimate_search'):
 from store_modes import (
     store_all_faces_from_video,
     bulk_store_multiple_videos,
-    bulk_store_multiple_videos_single_namespace,
 )
 from search_modes import (
     search_for_person_in_stored_faces,

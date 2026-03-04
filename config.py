@@ -31,10 +31,10 @@ if _args.mode:
     MODE = _args.mode
 
 # For STORE mode - single video
-VIDEO_PATH = (_args.video[0] if _args.video else None) or "peop.mp4"
+VIDEO_PATH = "bahu_480.mp4"
 
 # For SEARCH mode - single person in single video
-IMAGE_PATH = (_args.image[0] if _args.image else None) or "new.jpg"
+IMAGE_PATH = "pra.jpg"
 
 # For BATCH_SEARCH mode - multiple people in ONE video
 BATCH_IMAGE_PATHS = _args.image if (_args.image and len(_args.image) > 1) else [
